@@ -31,7 +31,7 @@ public class ProdutoController {
         return produtoService.criarProduto(produtoRequest);
     }
 
-    @PatchMapping("/{id/status")
+    @PatchMapping("/{id}/status")
     public  ProdutoResponse atualizarStatus(@PathVariable UUID id, @RequestBody @Valid AtualizarStatusRequest request){
         return produtoService.atulizarStatus(id, request);
     }

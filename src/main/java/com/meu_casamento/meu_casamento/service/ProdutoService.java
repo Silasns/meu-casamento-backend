@@ -9,11 +9,14 @@ import com.meu_casamento.meu_casamento.dto.ProdutoResponse;
 import com.meu_casamento.meu_casamento.exception.RecursoNaoEncontradoException;
 import com.meu_casamento.meu_casamento.repository.ProdutoRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.Sort.Order.asc;
 
 @Service
 public class ProdutoService {
@@ -26,7 +29,11 @@ public class ProdutoService {
 
     @Transactional// não funcionou, ver para que serve(readOnly = true) ver o por que de this::toResponse
     public List<ProdutoResponse> listarTodos() {
-        return produtoRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+        var sort = Sort.by(asc("statusReservado"), asc("titulo")); // false primeiro, depois true
+        return produtoRepository.findAll(sort)
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Transactional
@@ -47,11 +54,11 @@ public class ProdutoService {
     public ProdutoResponse atulizarStatus(UUID id, AtualizarStatusRequest request) {
         Produto p = produtoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado: " + id));
-        if(request.reservado() == null ){
+        if(request.reservado() == null ) {
             throw new IllegalArgumentException("Campo 'reservado' é obrigatório");
-            p.setStatusReservado(request.reservado());
-            return toResponse(p);
         }
+        p.setStatusReservado(request.reservado());
+        return toResponse(p);
     }
 
     private ProdutoResponse toResponse(Produto produto) {

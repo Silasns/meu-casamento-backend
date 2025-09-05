@@ -1,0 +1,8 @@
+checkout:
+  handle: silas-nc
+  redirect-url: https://seusite.com/obrigado
+  webhook-url: https://seusite.com/webhooks/pagamento  # seu endpoint público
+
+gateway:
+  base-url: https://api.infinitepay.io
+  checkout-path: /invoices/public/checkout/links
