@@ -1,6 +1,6 @@
 create extension if not exists "uuid-ossp";
 
-create table if not exist produto (
+create table if not exists produto (
     id uuid primary key default uuid_generate_v4(),
     titulo varchar(255) not null,
     descricao varchar(2000) not null,
