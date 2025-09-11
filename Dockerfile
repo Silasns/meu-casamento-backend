@@ -10,6 +10,6 @@ RUN mvn -q -DskipTests package
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -Djava.security.egd=file:/dev/./urandom"
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/target/app.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
