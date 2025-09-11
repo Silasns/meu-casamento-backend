@@ -9,11 +9,16 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:4200") // <- sem barra no final
+                // Use allowedOriginPatterns p/ aceitar curingas (*.vercel.app)
+                .allowedOriginPatterns(
+                        "https://*.vercel.app",
+                        "https://meu-casamento-git-develop-silasns-projects.vercel.app/", // se já tiver
+                        "http://localhost:4200"
+                )
                 .allowedMethods("GET","POST","PUT","PATCH","DELETE","OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Location")
-                .allowCredentials(true)     // se você usa cookie/sessão; se não usar, pode ser false
+                .allowCredentials(true) // deixe true só se realmente usa cookies/sessão
                 .maxAge(3600);
     }
 }
