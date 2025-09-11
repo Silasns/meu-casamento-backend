@@ -41,7 +41,7 @@ public class Produto {
 
     //Pedir para explicar essa parte de baixc
     @ElementCollection
-    @CollectionTable(name="produto_link", joinColumns = @JoinColumn(name = "produto_id" ))
+    @CollectionTable(name="produto_links", joinColumns = @JoinColumn(name = "produto_id" ))
     private List<LinkLoja> linkLojas = new ArrayList<>();
 
     private String imageUrl;
