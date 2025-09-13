@@ -1,6 +1,6 @@
 checkout:
   handle: silas-nc
-  redirect-url: https://seusite.com/obrigado
+  redirect-url: https://lar.silasesofia.com.br/conclusao-pay
   webhook-url: https://apicasarfacil.silasesofia.com.br/api/webhooks/infinitepay
 
 gateway:
