@@ -25,10 +25,10 @@ public class WebhookPagamentoController {
         log.info("=== WEBHOOK INFINITE PAY RECEBIDO ===");
         log.info("Timestamp: {}", java.time.LocalDateTime.now());
         log.info("Invoice Slug: {}", payload.getInvoiceSlug());
-        log.info("Status: {}", payload.getStatus());
+        //log.info("Status: {}", payload.getStatus());
         log.info("Valor: {}", payload.getAmount());
-        log.info("Moeda: {}", payload.getCurrency());
-        log.info("Cliente: {}", payload.getCustomer());
+       // log.info("Moeda: {}", payload.getCurrency());
+        //log.info("Cliente: {}", payload.getCustomer());
         log.info("Items: {}", payload.getItems());
         log.info("Payload completo: {}", payload);
         log.info("=====================================");
@@ -66,7 +66,7 @@ public class WebhookPagamentoController {
         log.info("=== TESTE DE WEBHOOK ===");
         log.info("Timestamp: {}", java.time.LocalDateTime.now());
         log.info("Invoice Slug: {}", payload.getInvoiceSlug());
-        log.info("Status: {}", payload.getStatus());
+        //log.info("Status: {}", payload.getStatus());
         log.info("Payload completo: {}", payload);
         log.info("========================");
         
