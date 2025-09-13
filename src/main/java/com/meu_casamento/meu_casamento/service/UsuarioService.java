@@ -34,17 +34,25 @@ public class UsuarioService {
         Produto produto = produtoRepository.findById(request.getProdutoId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Produto não encontrado: " + request.getProdutoId()));
 
-        // Buscar ou criar usuário
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseGet(() -> criarNovoUsuario(request));
-
-        // Verificar se o usuário já tem este produto reservado
-        if (usuario.getProdutosReservados().contains(request.getProdutoId())) {
-            throw new IllegalArgumentException("Este produto já está na sua lista de reservas");
+        // Verificar se o produto está disponível (não reservado)
+        if (produto.isStatusReservado()) {
+            throw new IllegalArgumentException("Este produto já foi reservado por outro usuário");
         }
 
-        // Adicionar o produto à lista do usuário
-        usuario.getProdutosReservados().add(request.getProdutoId());
+        // Buscar usuário existente
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
+        
+        if (usuario != null) {
+            // Verificar se o usuário já tem este produto reservado
+            if (usuario.getProdutosReservados().contains(request.getProdutoId())) {
+                throw new IllegalArgumentException("Este produto já está na sua lista de reservas");
+            }
+            // Adicionar o produto à lista do usuário existente
+            usuario.getProdutosReservados().add(request.getProdutoId());
+        } else {
+            // Criar novo usuário com o produto
+            usuario = criarNovoUsuario(request);
+        }
 
         // Salvar o usuário atualizado
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
