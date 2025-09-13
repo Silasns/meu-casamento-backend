@@ -57,6 +57,6 @@ public class Usuario {
     private List<UUID> produtosReservados = new ArrayList<>();
     
     public enum MeioReserva {
-        lojas, pagamentoDireto
+        lojas, card
     }
 }
