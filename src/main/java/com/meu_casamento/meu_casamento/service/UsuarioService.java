@@ -43,11 +43,12 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
         
         if (usuario != null) {
-            // Verificar se o usuário já tem este produto reservado
-            if (usuario.getProdutosReservados().contains(request.getProdutoId())) {
+            boolean isPagamentoDireto = request.getMeioReserva() == Usuario.MeioReserva.pagamentoDireto;
+            // Verificar duplicidade apenas quando NÃO for pagamentoDireto
+            if (!isPagamentoDireto && usuario.getProdutosReservados().contains(request.getProdutoId())) {
                 throw new IllegalArgumentException("Este produto já está na sua lista de reservas");
             }
-            // Adicionar o produto à lista do usuário existente
+            // Adicionar o produto à lista do usuário existente (permite duplicado para pagamentoDireto)
             usuario.getProdutosReservados().add(request.getProdutoId());
         } else {
             // Criar novo usuário com o produto
