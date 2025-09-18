@@ -57,8 +57,10 @@ public class UsuarioService {
         // Salvar o usuário atualizado
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // Atualizar o status do produto como reservado
-        produtoService.atulizarStatus(request.getProdutoId(), new AtualizarStatusRequest(true));
+        // Atualizar o status do produto como reservado somente quando meioReserva for 'lojas'
+        if (request.getMeioReserva() == Usuario.MeioReserva.lojas) {
+            produtoService.atulizarStatus(request.getProdutoId(), new AtualizarStatusRequest(true));
+        }
 
         // Retornar o usuário com todos os produtos
         return toResponse(usuarioSalvo);
