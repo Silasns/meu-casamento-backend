@@ -62,12 +62,12 @@ public class WebhookPagamentoService {
 
         } catch (IllegalArgumentException e) {
             log.error("Erro ao processar order_nsu: {}", webhook.getOrderNsu(), e);
-            webhookEventoService.registrar("infinitepay", webhook, null, false, false, "Formato inválido do order_nsu");
-            return WebhookResponse.erro("Formato inválido do order_nsu");
+            webhookEventoService.registrar("infinitepay", webhook, null, true, true, "Formato inválido do order_nsu");
+            return WebhookResponse.sucesso();
         } catch (RecursoNaoEncontradoException e) {
             log.error("Produto não encontrado: {}", e.getMessage());
-            webhookEventoService.registrar("infinitepay", webhook, null, true, false, "Produto não encontrado");
-            return WebhookResponse.erro("Produto não encontrado");
+            webhookEventoService.registrar("infinitepay", webhook, null, true, true, "Produto não encontrado");
+            return WebhookResponse.sucesso();
         } catch (Exception e) {
             log.error("Erro inesperado ao processar webhook", e);
             webhookEventoService.registrar("infinitepay", webhook, null, false, false, "Erro interno do servidor");

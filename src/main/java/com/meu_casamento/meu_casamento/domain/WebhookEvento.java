@@ -43,6 +43,9 @@ public class WebhookEvento {
     @Column(name = "paid_amount")
     private Integer paidAmount;
 
+    @Column(name = "installments")
+    private Integer installments;
+
     @Column(name = "capture_method")
     private String captureMethod;
 

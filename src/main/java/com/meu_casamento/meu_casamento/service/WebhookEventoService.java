@@ -32,9 +32,9 @@ public class WebhookEventoService {
             }
             payloadJson = objectMapper.writeValueAsString(payload);
         } catch (Exception e) {
-            // Fallback simples para evitar quebra do fluxo
-            itemsJson = String.valueOf(payload.getItems());
-            payloadJson = String.valueOf(payload);
+            // Fallback para sempre gravar JSON válido
+            itemsJson = "null"; // JSON válido representando ausência
+            payloadJson = "{\"serializationError\":true,\"message\":\"Falha ao serializar payload\"}";
         }
         WebhookEvento evento = WebhookEvento.builder()
                 .fonte(fonte)
@@ -43,6 +43,7 @@ public class WebhookEventoService {
                 .produtoId(produtoId)
                 .amount(payload.getAmount())
                 .paidAmount(payload.getPaidAmount())
+                .installments(payload.getInstallments())
                 .captureMethod(payload.getCaptureMethod())
                 .transactionNsu(payload.getTransactionNsu())
                 .receiptUrl(payload.getReceiptUrl())
