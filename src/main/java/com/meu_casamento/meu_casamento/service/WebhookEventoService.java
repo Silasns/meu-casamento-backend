@@ -24,6 +24,18 @@ public class WebhookEventoService {
                                    boolean aprovado,
                                    boolean sucessoProcessamento,
                                    String mensagemErro) {
+        String itemsJson = null;
+        String payloadJson = null;
+        try {
+            if (payload.getItems() != null) {
+                itemsJson = objectMapper.writeValueAsString(payload.getItems());
+            }
+            payloadJson = objectMapper.writeValueAsString(payload);
+        } catch (Exception e) {
+            // Fallback simples para evitar quebra do fluxo
+            itemsJson = String.valueOf(payload.getItems());
+            payloadJson = String.valueOf(payload);
+        }
         WebhookEvento evento = WebhookEvento.builder()
                 .fonte(fonte)
                 .invoiceSlug(payload.getInvoiceSlug())
@@ -34,8 +46,8 @@ public class WebhookEventoService {
                 .captureMethod(payload.getCaptureMethod())
                 .transactionNsu(payload.getTransactionNsu())
                 .receiptUrl(payload.getReceiptUrl())
-                .itemsJson(payload.getItems())
-                .payloadJson(payload)
+                .itemsJson(itemsJson)
+                .payloadJson(payloadJson)
                 .aprovado(aprovado)
                 .sucessoProcessamento(sucessoProcessamento)
                 .mensagemErro(mensagemErro)

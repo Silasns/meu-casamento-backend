@@ -54,11 +54,11 @@ public class WebhookEvento {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "items_json", columnDefinition = "jsonb")
-    private Object itemsJson;
+    private String itemsJson;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "payload_json", columnDefinition = "jsonb", nullable = false)
-    private Object payloadJson;
+    private String payloadJson;
 
     @Column(name = "aprovado", nullable = false)
     private boolean aprovado;
