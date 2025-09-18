@@ -17,9 +17,11 @@ import java.util.UUID;
 public class WebhookPagamentoService {
 
     private final ProdutoRepository produtoRepository;
+    private final WebhookEventoService webhookEventoService;
     
-    public WebhookPagamentoService(ProdutoRepository produtoRepository) { 
+    public WebhookPagamentoService(ProdutoRepository produtoRepository, WebhookEventoService webhookEventoService) { 
         this.produtoRepository = produtoRepository;
+        this.webhookEventoService = webhookEventoService;
     }
 
     @Transactional
@@ -31,6 +33,7 @@ public class WebhookPagamentoService {
             // Verificar se o pagamento foi aprovado
             if (!isPagamentoAprovado(webhook)) {
                 log.info("Pagamento não foi aprovado. Ignorando webhook.");
+                webhookEventoService.registrar("infinitepay", webhook, null, false, true, null);
                 return WebhookResponse.sucesso();
             }
 
@@ -44,6 +47,7 @@ public class WebhookPagamentoService {
             // Verificar se o produto já está reservado
             if (produto.isStatusReservado()) {
                 log.warn("Produto {} já está reservado. Ignorando webhook.", produtoId);
+                webhookEventoService.registrar("infinitepay", webhook, produtoId, true, true, null);
                 return WebhookResponse.sucesso();
             }
 
@@ -52,17 +56,21 @@ public class WebhookPagamentoService {
             produtoRepository.save(produto);
 
             log.info("Produto {} marcado como reservado com sucesso via webhook da InfinitePay", produtoId);
+            webhookEventoService.registrar("infinitepay", webhook, produtoId, true, true, null);
             
             return WebhookResponse.sucesso();
 
         } catch (IllegalArgumentException e) {
             log.error("Erro ao processar order_nsu: {}", webhook.getOrderNsu(), e);
+            webhookEventoService.registrar("infinitepay", webhook, null, false, false, "Formato inválido do order_nsu");
             return WebhookResponse.erro("Formato inválido do order_nsu");
         } catch (RecursoNaoEncontradoException e) {
             log.error("Produto não encontrado: {}", e.getMessage());
+            webhookEventoService.registrar("infinitepay", webhook, null, true, false, "Produto não encontrado");
             return WebhookResponse.erro("Produto não encontrado");
         } catch (Exception e) {
             log.error("Erro inesperado ao processar webhook", e);
+            webhookEventoService.registrar("infinitepay", webhook, null, false, false, "Erro interno do servidor");
             return WebhookResponse.erro("Erro interno do servidor");
         }
     }
