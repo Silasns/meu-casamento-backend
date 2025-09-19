@@ -24,6 +24,11 @@ public class ProdutoController {
     public List<ProdutoResponse> listar(){
         return produtoService.listarTodos();
     }
+    
+    @GetMapping("/{id}")
+    public boolean buscarPorId(@PathVariable UUID id){
+        return produtoService.buscarPorId(id).disponivel();
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
