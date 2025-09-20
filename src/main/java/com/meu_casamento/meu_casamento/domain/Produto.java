@@ -25,7 +25,6 @@ public class Produto {
     @NotBlank
     private String titulo;
 
-    @NotBlank
     @Column(length = 2000)
     private String descricao;
 
