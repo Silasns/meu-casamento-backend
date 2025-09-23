@@ -1,6 +1,7 @@
 package com.meu_casamento.meu_casamento.service;
 
 import com.meu_casamento.meu_casamento.domain.Produto;
+import com.meu_casamento.meu_casamento.domain.TentativaPagamento;
 import com.meu_casamento.meu_casamento.domain.Usuario;
 import com.meu_casamento.meu_casamento.dto.AtualizarStatusRequest;
 import com.meu_casamento.meu_casamento.dto.UsuarioRequest;
@@ -21,11 +22,14 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
     private final ProdutoService produtoService;
+    private final TentativaPagamentoService tentativaPagamentoService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository, ProdutoService produtoService) {
+    public UsuarioService(UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository, 
+                         ProdutoService produtoService, TentativaPagamentoService tentativaPagamentoService) {
         this.usuarioRepository = usuarioRepository;
         this.produtoRepository = produtoRepository;
         this.produtoService = produtoService;
+        this.tentativaPagamentoService = tentativaPagamentoService;
     }
 
     @Transactional
@@ -39,16 +43,42 @@ public class UsuarioService {
             throw new IllegalArgumentException("Este produto já foi reservado por outro usuário");
         }
 
+        // Fluxo separado para pagamentoDireto
+        if (request.getMeioReserva() == Usuario.MeioReserva.pagamentoDireto) {
+            return processarPagamentoDireto(request);
+        }
+
+        // Fluxo para lojas (comportamento original)
+        return processarReservaLojas(request);
+    }
+
+    private UsuarioResponse processarPagamentoDireto(UsuarioRequest request) {
+        // Para pagamentoDireto, criar apenas tentativa (não salva em usuario ainda)
+        TentativaPagamento tentativa = tentativaPagamentoService.criarTentativa(request);
+        
+        // Retornar resposta simulando usuário (para manter compatibilidade da API)
+        return UsuarioResponse.builder()
+                .id(tentativa.getId()) // Usando ID da tentativa
+                .nome(tentativa.getNome())
+                .telefone(tentativa.getTelefone())
+                .email(tentativa.getEmail())
+                .mensagem(tentativa.getMensagem())
+                .dataCadastro(tentativa.getCriadoEm())
+                .meioReserva(Usuario.MeioReserva.pagamentoDireto.name())
+                .produtosReservados(List.of(tentativa.getProdutoId()))
+                .build();
+    }
+
+    private UsuarioResponse processarReservaLojas(UsuarioRequest request) {
         // Buscar usuário existente
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail()).orElse(null);
         
         if (usuario != null) {
-            boolean isPagamentoDireto = request.getMeioReserva() == Usuario.MeioReserva.pagamentoDireto;
-            // Verificar duplicidade apenas quando NÃO for pagamentoDireto
-            if (!isPagamentoDireto && usuario.getProdutosReservados().contains(request.getProdutoId())) {
+            // Verificar duplicidade para lojas
+            if (usuario.getProdutosReservados().contains(request.getProdutoId())) {
                 throw new IllegalArgumentException("Este produto já está na sua lista de reservas");
             }
-            // Adicionar o produto à lista do usuário existente (permite duplicado para pagamentoDireto)
+            // Adicionar o produto à lista do usuário existente
             usuario.getProdutosReservados().add(request.getProdutoId());
         } else {
             // Criar novo usuário com o produto
@@ -58,10 +88,8 @@ public class UsuarioService {
         // Salvar o usuário atualizado
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
 
-        // Atualizar o status do produto como reservado somente quando meioReserva for 'lojas'
-        if (request.getMeioReserva() == Usuario.MeioReserva.lojas) {
-            produtoService.atulizarStatus(request.getProdutoId(), new AtualizarStatusRequest(true));
-        }
+        // Atualizar o status do produto como reservado para lojas
+        produtoService.atulizarStatus(request.getProdutoId(), new AtualizarStatusRequest(true));
 
         // Retornar o usuário com todos os produtos
         return toResponse(usuarioSalvo);
